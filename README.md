@@ -1,6 +1,6 @@
-## Atlantic White‐cedar: Population Genetics Analysis Comparisons
-### Prior to these analyses, SNPs were called by aligning reads to 3 separate references:
+## Atlantic White‐cedar: Population Genomics Comparisons
 
+## Variant Calling
 ### De novo Reference
 <details><summary> De novo - Assembled from GBS reads using the dDocent pipeline (ranbow + CD hit) </summary>
 
@@ -2202,11 +2202,13 @@ sbatch run_gatk_genotypegvcfs.qsh
 
 ***
 
-
 </details>
 
+## Population Genomics Analyses
 
 ***
+
+<details><summary> Population Genomics Analyses </summary>
 
 <details><summary> 01. HDplot: Paralog Pruning </summary>
 <p>
@@ -3838,8 +3840,6 @@ $thyoides_DE1
 
 1. Mantel test:
 ```
-  GNU nano 2.9.8                                                                                                                                                                                                                                                                        dartR_IBD_loop.R                                                                                                                                                                                                                                                                                   
-
 #!/usr/bin/env Rscript
 
 ## Installing and loading libraries
@@ -5540,11 +5540,10 @@ for (i in seq_along(input_files)) {
 
 ```
 
-
-
-
 </p>
 </details> 
 
 ***
+
+</details>
 
