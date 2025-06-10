@@ -1635,18 +1635,103 @@ $thyoides_DE1
 <details><summary> 12. Isolation-by-Distance: Mantel Test </summary>
 <p>
 
+1. Mantel test:
+```
+  GNU nano 2.9.8                                                                                                                                                                                                                                                                        dartR_IBD_loop.R                                                                                                                                                                                                                                                                                   
+
+#!/usr/bin/env Rscript
+
+## Installing and loading libraries
+
+# Install the remotes package if not already installed
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+
+# Define a CRAN mirror to download packages from.
+cran_mirrors <- c("https://cran.r-project.org/","https://cloud.r-project.org/")
+
+# Specify other libraries
+packages_to_load <- c("vcfR", "poppr", "dartRverse", "raster")
+
+# Check if each package is installed, and if not, install it
+#for (package in packages_to_load) {
+#  if (!requireNamespace(package, quietly = TRUE)){
+#    install.packages(package, repos = cran_mirrors, dependencies = TRUE)
+#  }
+#}
+
+# Load all the packages
+sapply(packages_to_load, library, character.only = TRUE)
+
+## Data Loading
+
+# Load population and coordinate data
+pop_csv <- read.csv("popfile.tsv", sep = '\t', header = FALSE)
+pops <- pop_csv$V2
+
+coord_csv <- read.csv("coord_file.tsv", sep = '\t', header = TRUE)
+coords <- as.data.frame(coord_csv[, c(3, 2)])
+
+## Perform Mantel Test on VCF files
+
+# List all VCF files in the directory
+vcf_files <- list.files(pattern = "*.vcf.gz")
+
+for (vcf_file in vcf_files) {
+  # Read in the VCF file
+  vcf_R <- read.vcfR(vcf_file)
+  all_gl <- vcfR2genlight(vcf_R)
+
+  # Assign populations and lat/long
+  pop(all_gl) <- pops
+  all_gl@other$latlon <- coords
+
+  # Create genlight subsets
+  ACP_gl <- all_gl[pop(all_gl) %in% c("ACP"), ]
+  WGCP_gl <- all_gl[pop(all_gl) %in% c("WGCP"), ]
+  EGCP_gl <- all_gl[pop(all_gl) %in% c("EGCP"), ]
+  ACP_WGCP_gl <- all_gl[pop(all_gl) %in% c("ACP", "WGCP"), ]
+  ACP_EGCP_gl <- all_gl[pop(all_gl) %in% c("ACP", "EGCP"), ]
+  WGCP_EGCP_gl <- all_gl[pop(all_gl) %in% c("WGCP", "EGCP"), ]
+
+  # Save the genlight object
+  output_rds <- sub(".vcf.gz", "_gl.rds", vcf_file)
+  saveRDS(all_gl, file = output_rds)
+
+  # Perform population-based Mantel tests
+  print("RUNNING all_ibd:")
+  all_ibd <- dartR::gl.ibd(all_gl, distance = "euclidean", paircols = 'pop', permutations = 10000)
+  all_ibd
+
+  print("RUNNING ACP_ibd:")
+  ACP_ibd <- dartR::gl.ibd(ACP_gl, distance = "euclidean", paircols = 'pop', permutations = 10000)
+  ACP_ibd
+
+  print("RUNNING WGCP_ibd:")
+  WGCP_ibd <- dartR::gl.ibd(WGCP_gl, distance = "euclidean", paircols = 'pop', permutations = 10000)
+  WGCP_ibd
+
+  print("RUNNING EGCP_ibd:")
+  EGCP_ibd <- dartR::gl.ibd(EGCP_gl, distance = "euclidean", paircols = 'pop', permutations = 10000)
+  EGCP_ibd
+
+  print("RUNNING ACP_WGCP_ibd:")
+  ACP_WGCP_ibd <- dartR::gl.ibd(ACP_WGCP_gl, distance = "euclidean", paircols = 'pop', permutations = 10000)
+  ACP_WGCP_ibd
+
+  print("RUNNING ACP_EGCP_ibd:")
+  ACP_EGCP_ibd <- dartR::gl.ibd(ACP_EGCP_gl, distance = "euclidean", paircols = 'pop', permutations = 10000)
+  ACP_EGCP_ibd
+
+  print("RUNNING WGCP_EGCP_ibd:")
+  WGCP_EGCP_ibd <- dartR::gl.ibd(WGCP_EGCP_gl, distance = "euclidean", paircols = 'pop', permutations = 10000)
+  WGCP_EGCP_ibd
+```
 
 
 </p>
 </details> 
-
-***
-
-<details><summary> Setting up a geospatial R environment </summary>
-<p>
-
-</p>
-</details>
 
 ***
 
