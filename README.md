@@ -93,44 +93,6 @@ Inverting instead of vortexing may reduce DNA degradation.
 
 ***
 
-<details><summary> 00. Rclone v1.62.2 & Globus Connect Personal: Data Transfer & Backup - 5/10/23 </summary>
-<p>
-
-00. Rclone v1.62.2 & Globus Connect Personal: Data Transfer & Backup
-
-1. First, I transferred the files from the `UW-Madison Biotechnology Center - External Users` Globus Drive by setting up a local endpoint. This required downloading [Globus Connect Personal](https://www.globus.org/globus-connect-personal) to sync the files directly to my OneDrive account through the web-based Globus GUI. Note: Globus auto-performs a checksum post-transfer to notify you of errors.
-
-2. Due to the `Rclone` version in `Spack` being out-of-date, I installed my own using `mamba`.
-```
-mamba create -n rclone -c conda-forge rclone
-mamba activate rclone
-```
-
-3. Third, I copied the completed files from my OneDrive `Rclone` remote to Flora. For information on how to set up your own Google Drive or OneDrive remote, I recommend this [tutorial](https://www.youtube.com/watch?v=UzQIKYZDlLI&ab_channel=eKiwi-BlogTutorialsEnglish).
-```
-cd /pickett_flora/projects/chamaecyparis_thyoides/raw_data
-rclone -Pv copy zs_onedrive:raw_data/atlantic_white_cedar .
-```
-
-4. Finally, I ran a checksum on Flora to ensure the files had been copied from their original location correctly.
-```
-md5sum -c Staton_md5sum.txt
-```
-* Output:
-```
-Staton-UT-Plate-3_S22_L004_R1_001.fastq.gz: OK
-Staton-UT-Plate-3_S22_L004_R2_001.fastq.gz: OK
-Staton-UT-Plate-1_S20_L004_R1_001.fastq.gz: OK
-Staton-UT-Plate-1_S20_L004_R2_001.fastq.gz: OK
-Staton-UT-Plate-2_S21_L004_R2_001.fastq.gz: OK
-Staton-UT-Plate-2_S21_L004_R1_001.fastq.gz: OK
-```
-
-</details>
-</p>
-
-***
-
 <details><summary> 01. Sabre v1.000: Demultiplexing - 5/12/23 </summary
 <p>
 
@@ -293,7 +255,7 @@ tar
 
 ***
 
-<details><summary> 02. FastQC v0.12.1mam & MultiQC: Quality Control Checks - 5/13/23 </summary>
+<details><summary> 02. FastQC v0.12.1mam & MultiQC: Quality Control Checks </summary>
 <p>
 
 ## 02: FastQC v0.12.1 & MultiQC v1.14: Quality Control Checks
@@ -398,7 +360,7 @@ nano run_fastp_array.qsh
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -769,7 +731,7 @@ nano run_bwa_haplotypecaller.qsh
 #SBATCH -e bwa_array_err/%x_%A_%a.err
 #SBATCH --time=4:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -825,7 +787,7 @@ nano run_flagstats.qsh
 #SBATCH --mem-per-cpu=1G
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load samtools
 
@@ -911,7 +873,7 @@ nano run_picard_array.qsh
 #SBATCH -e picard_array_err/%x_%A_%a.err
 #SBATCH --time=4:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -965,7 +927,7 @@ nano run_samtools_index.qsh
 #SBATCH --qos=campus
 #SBATCH --time=6:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load samtools
 
@@ -993,7 +955,7 @@ nano run_haplotypecaller.qsh
 #SBATCH -e haplotypecaller_array_err/%x_%A_%a.err
 #SBATCH --time=6:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -1104,7 +1066,7 @@ nano run_genomicsdb_import.qsh
 #SBATCH --qos=genomics
 #SBATCH --time=144:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 eval "$(conda shell.bash hook)"
 conda activate gatk
@@ -1143,7 +1105,7 @@ nano run_gatk_genotypegvcfs.qsh
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=144:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 eval "$(conda shell.bash hook)"
 conda activate gatk
@@ -1172,6 +1134,7 @@ sbatch run_gatk_genotypegvcfs.qsh
 ***
 
 ### Close Reference
+
 <details><summary> Chamaecyparis obtusa - The closest reference available (HiFi-based) </summary>
 
 ***
@@ -1209,7 +1172,7 @@ nano run_indexing.qsh
 #SBATCH --partition=campus
 #SBATCH --qos=campus
 #SBATCH --time=12:00:00
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 INPUT_FILE=COB_r1.0.fasta
 OUTPUT_FILE=$( basename $INPUT_FILE | sed 's/.fasta//')
@@ -1255,7 +1218,7 @@ ln -s /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/01_T.plicata_re
 #SBATCH -e bwa_outs/%x_%A_%a.err
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -1309,7 +1272,7 @@ nano run_flagstats.qsh
 #SBATCH --mem-per-cpu=1G
 #SBATCH --time=3:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load samtools
 
@@ -1400,7 +1363,7 @@ nano run_picard_array.qsh
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -1453,7 +1416,7 @@ nano run_samtools_index.qsh
 #SBATCH --qos=campus
 #SBATCH --time=6:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load samtools
 
@@ -1481,7 +1444,7 @@ nano run_haplotypecaller_array.qsh
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=8:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -1596,7 +1559,7 @@ nano run_genomicsdb_import.qsh
 #SBATCH --qos=genomics
 #SBATCH --time=144:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load gatk
 
@@ -1644,7 +1607,7 @@ nano run_gatk_genotypegvcfs.qsh
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=144:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load gatk
 
@@ -1727,7 +1690,7 @@ bwa index Tplicata_572_v3.fa.gz
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -1781,7 +1744,7 @@ nano run_flagstats.qsh
 #SBATCH --mem-per-cpu=1G
 #SBATCH --time=3:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load samtools
 
@@ -1891,7 +1854,7 @@ nano run_picard_array.qsh
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -1944,7 +1907,7 @@ nano run_samtools_index.qsh
 #SBATCH --qos=campus
 #SBATCH --time=6:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load samtools
 
@@ -1972,7 +1935,7 @@ nano run_haplotypecaller_array.qsh
 #SBATCH -e %x_%A_%a.err
 #SBATCH --time=8:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -2072,7 +2035,7 @@ nano run_combine_gvcfs.qsh
 #SBATCH --qos=campus-bigmem
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load gatk
 
@@ -2125,7 +2088,7 @@ nano run_genomicsdb_import.qsh
 #SBATCH --qos=campus-bigmem
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load gatk
 
@@ -2187,7 +2150,7 @@ nano run_gatk_genotypegvcfs.qsh
 #SBATCH --qos=campus
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 module load gatk
 
@@ -2281,12 +2244,12 @@ nano run_bcftools_annotate.qsh
 #SBATCH --qos=campus
 #SBATCH --time=2:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 #SBATCH --array=0-2
 #SBATCH -o %x_%A_%a.out
 #SBATCH -e %x_%A_%a.err
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 echo "host name : " `hostname`
 echo This is array task number $SLURM_ARRAY_TASK_ID
@@ -2332,7 +2295,7 @@ nano run_paralog-finder_identify-paralogs.qsh
 #SBATCH --qos=campus
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edux
+x
 
 # Load R environment
 eval "$(conda shell.bash hook)"
@@ -2370,7 +2333,7 @@ nano run_paralog-finder_plot-paralogs.qsh
 #SBATCH --qos=campus
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edux
+x
 
 # Step 2: Create HDplot plots
 eval "$(conda shell.bash hook)"
@@ -2416,11 +2379,7 @@ mv *png $denovo_out_dir
 sbatch run_paralog-finder_plot-paralogs.qsh
 ```
 
-9. This script generates four plots:
-* Plot 1: 
-* Plot 2:
-* Plot 3:
-* Plot 4:
+9. This script generates four plots.
 
 10. Finally, after selecting cut-off thresholds based on the heterozygosity and read deviation (primarily from Plot 1), I created the blacklists and whitelists of loci for each file with the third and final script. While paralog-finder can help identify both diverged and undiverged paralogs (ancient and recent paralogs, respectively). I did not observe clear signs of undiverged paralogs, thus, I selected a threshold of maxH 0.99 to filter only those paralogs based on heterozygosity. Read deviation thresholds were selected for each of the three datasets by excluding the upper and lower 2.5th percentile of loci (i.e., outliers) denoted by thickened black lines/points on graph 1. 
 
@@ -2438,7 +2397,7 @@ nano run_paralog-finder_blacklist-paralogs.qsh
 #SBATCH --qos=short
 #SBATCH --time=3:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edux
+x
 
 # Load R environment
 eval "$(conda shell.bash hook)"
@@ -2528,7 +2487,7 @@ nano run_bcftools_filter.qsh
 #SBATCH --qos=campus
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edux
+x
 #SBATCH --array=0-2
 #SBATCH -o %x_%A_%a.out
 #SBATCH -e %x_%A_%a.err
@@ -2686,7 +2645,7 @@ nano run_plink.qsh
 #SBATCH --qos=short
 #SBATCH --time=3:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 eval "$(conda shell.bash hook)"
 conda activate plink
@@ -2756,7 +2715,7 @@ nano run_plink2_king.qsh
 #SBATCH --qos=short
 #SBATCH --time=3:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 eval "$(conda shell.bash hook)"
 conda activate plink2
@@ -2819,7 +2778,7 @@ vd Cthyoides_Cobtusa-refaligned_GATKfilters_annotated_biallelic_maf05_minDP3_PAS
 
 ***
 
-<details><summary> 02.1. BCFtools: Removing Related Individuals </summary>
+<details><summary> 02. BCFtools: Removing Related Individuals </summary>
 <p>
 
 Directory: /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/04_popgen_analysis/02_bcftools/02_second_pass
@@ -2854,7 +2813,7 @@ sbatch run_bcftools_filter.qsh
 
 ***
 
-<details><summary> 03.1 Linkage Pruning - Second Pass </summary>
+<details><summary> 03 Linkage Pruning </summary>
 <p>
 
 Directory: `/lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/04_popgen_analysis/03_LD_pruning/02_second_pass`
@@ -2879,7 +2838,7 @@ nano run_plink.qsh
 #SBATCH --qos=short
 #SBATCH --time=3:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 eval "$(conda shell.bash hook)"
 conda activate plink
@@ -2938,7 +2897,6 @@ sbatch count_snps.sh
 
 ***
 
-
 <details><summary> 05. R: Interactive PCAs </summary>
 <p>
 
@@ -2972,7 +2930,7 @@ nano run_pca.sh
 #SBATCH --qos=short
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 # Load R environment
 eval "$(conda shell.bash hook)"
@@ -3039,7 +2997,7 @@ nano run_pca.sh
 #SBATCH --qos=short
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 # Load R environment
 eval "$(conda shell.bash hook)"
@@ -3256,7 +3214,7 @@ nano run_summary_stats.qsh
 #SBATCH --qos=campus-bigmem
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 # Load R environment
 eval "$(conda shell.bash hook)"
@@ -3302,7 +3260,7 @@ nano run_pgdspider.sh
 #SBATCH --qos=short
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 eval "$(conda shell.bash hook)"
 conda activate pgdspider
@@ -3418,7 +3376,7 @@ nano run_structure_threader_run.qsh
 #SBATCH --qos=campus
 #SBATCH --time=6:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edux
+x
 #SBATCH --array=0-2
 #SBATCH -o %x_%A_%a.out
 #SBATCH -e %x_%A_%a.err
@@ -3586,7 +3544,7 @@ nano run_dapc.qsh
 #SBATCH --qos=short
 #SBATCH --time=1:00:00
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edu
+
 
 # Load R environment
 eval "$(conda shell.bash hook)"
@@ -3790,7 +3748,7 @@ run_dartR.sh
 #SBATCH -o %x_%A_%a.out
 #SBATCH -e %x_%A_%a.err
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=zsmith10@vols.utk.edux
+x
 
 # Load R environment
 eval "$(conda shell.bash hook)"
