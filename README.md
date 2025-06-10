@@ -1,4 +1,5 @@
-## Atlantic White‐cedar: Population Genomics Comparisons
+# Atlantic White‐cedar: Population Genomics Comparisons
+### This repo accompanies the paper: <i>Applications and challenges of variant calling in giga-genome species: a case study in the imperiled conifer, Chamaecyparis thyoides</i> by Smith et al., 2025.
 
 ## Variant Calling
 ### De novo Reference
@@ -1168,6 +1169,8 @@ sbatch run_gatk_genotypegvcfs.qsh
 
 </details>
 
+***
+
 ### Close Reference
 <details><summary> Chamaecyparis obtusa - The closest reference available (HiFi-based) </summary>
 
@@ -1663,6 +1666,8 @@ sbatch run_gatk_genotypegvcfs.qsh
 ***
 
 </details>
+
+***
 
 ### Distant Reference
 <details><summary> Thuja plicata - The second closest reference (here, our "phylogenetically distant reference"; Illumina-based from a multigeneration-selfed individual) </summary>
@@ -2204,9 +2209,9 @@ sbatch run_gatk_genotypegvcfs.qsh
 
 </details>
 
-## Population Genomics Analyses
-
 ***
+
+## Population Genomics Analyses
 
 <details><summary> Population Genomics Analyses </summary>
 
