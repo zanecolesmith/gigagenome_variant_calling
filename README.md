@@ -1,22 +1,1052 @@
 ## Atlantic White‐cedar: Population Genetics Analysis Comparisons
 ### Prior to these analyses, SNPs were called by aligning reads to 3 separate references:
 
+### De novo Reference
+<details><summary> De novo - Assembled from GBS reads using the dDocent pipeline (ranbow + CD hit) </summary>
+
+***
+
+
+
+</details>
+
 ### Close Reference
 <details><summary> Chamaecyparis obtusa - The closest reference available (HiFi-based) </summary>
 
+***
+
+<details><summary> 04. BWA: Alignment to the Chamaecyparis obtusa genome - 10/24/23 </summary>
+<p>
+
+1. I made a new directory for this analysis and created a directory to house my reference.
+* filepath:
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/
+mkdir 03_C.obtusa_reference-aligned
+cd 03_C.obtusa_reference-aligned
+mkdir C.obtusa_reference
+cd C.obtusa_reference
+```
+
+2. Then, I downloaded the Chamaecyparis obtusa genome from https://drive.google.com/drive/u/2/folders/1YKzyQJ3td4W3jAomRIeWizCf5D-1L-I5, and I secure-copied it from my desktop to Flora. The original paper is here: https://www-tandfonline-com.utk.idm.oclc.org/doi/full/10.1080/13416979.2023.2267304.
+
+3. To get things ready for bwa and GATK, I unzipped and indexed the _C. obtusa_ genome with bwa and samtools. I also created a sequence dictionary with picard.
+```
+gunzip index COB_r1.0.fasta.gz
+conda activate gatk # this environment includes my picard installation.
+```
+```
+nano run_indexing.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=indexing
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --mem=40G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --time=12:00:00
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+INPUT_FILE=COB_r1.0.fasta
+OUTPUT_FILE=$( basename $INPUT_FILE | sed 's/.fasta//')
+
+module load bwa
+module load samtools
+module load gatk
+
+bwa index $INPUT_FILE \
+&& \
+samtools faidx $INPUT_FILE \
+&& \
+picard CreateSequenceDictionary R=$INPUT_FILE O=$OUTPUT_FILE\.dict
+```
+```
+sbatch run_indexing.qsh
+```
+
+4. Next, I created a main analysis directory with a bwa analysis directory in it and symbolically linked all of my trimmed read files.
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/03_C.obtusa_reference-aligned
+mkdir analysis
+cd analysis
+mkdir 04_bwa
+cd 04_bwa
+ln -s /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/01_T.plicata_reference-aligned/analysis/02_fastp/fastp_out/*fq.gz
+```
+
+5. In this case there was no need to remove the failed samples as they are already in an `excluded_samples` directory within my `fastp_out` directory.
+
+6. I ran a task array on the ISAAC HPC to align all reads files to the _Chamaecyparis obtusa_ genome and output merged binary alignment map (BAM) files.
+```
+#!/bin/bash
+#SBATCH --job-name=bwa_array
+#SBATCH --nodes=1
+#SBATCH --ntasks=6
+#SBATCH --mem=30G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=0-90
+#SBATCH -o bwa_outs/%x_%A_%a.out
+#SBATCH -e bwa_outs/%x_%A_%a.err
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *r1.fq.gz))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# create an output file name
+OUT=$(echo $ARRAY_FILE | sed 's/.r1.fq.gz//')
+
+# define read 1 and read 2 from the array
+r1=${ARRAY_FILE}
+r2=`sed 's/.r1.fq.gz/.r2.fq.gz/' <(echo ${ARRAY_FILE})`
+
+echo "Read 1: $r1"
+echo "Read 2: $r2"
+
+
+module load bwa
+module load samtools
+
+bwa mem -t 5 \
+        /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/03_C.obtusa_reference-aligned/C.obtusa_reference/COB_r1.0.fasta \
+        $r1 \
+        $r2 \
+        | samtools view -bSh \
+        | samtools sort \
+        -@ 5 -m 4G \
+        -o $OUT\_sorted.bam
+
+echo Files $r1 and $r2 were aligned by task number $SLURM_ARRAY_TASK_ID on $(date)
+```
+
+7. Then, I ran samtools flagstats to look at alignment statistics.
+```
+nano run_flagstats.qsh
+```
+```
+#!/bin/bash
+#SBATCH -J flagstats
+#SBATCH --nodes=1
+#SBATCH --ntasks=20
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=short
+#SBATCH --qos=short
+#SBATCH --mem-per-cpu=1G
+#SBATCH --time=3:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load samtools
+
+for b in *.bam
+do
+        stats_out=$( basename $b | sed 's/.bam/.stats/g')
+
+        samtools flagstat $b > $stats_out
+done
+```
+```
+sbatch run_flagstats.qsh
+```
+
+8. Then I collated the most useful statistics from the flagstats outputs into a single file.
+```
+nano collate_flagstats.sh
+```
+```
+for file in *stats
+do
+        echo $file >> flagstat_summary.tsv &&\
+        grep '+ 0 in total' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 mapped' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 primary mapped' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 supplementary' $file  >> flagstat_summary.tsv
+done
+```
+```
+bash collate_flagstats.sh
+```
+
+9. Finally, I curated the stats into a tsv file to copy into a spreadsheet in google drive [here](https://docs.google.com/spreadsheets/d/1KL36GsyMEJyrZzoKnBIFlJDbhraCc4ZqQv5sTebNm6w/edit#gid=250450826). 
+```
+nano curate_flagstats.sh
+```
+```
+awk 'NR % 5 == 1' flagstat_summary.tsv > column1.tsv
+awk 'NR % 5 == 2' flagstat_summary.tsv > column2.tsv
+awk 'NR % 5 == 3' flagstat_summary.tsv > column3.tsv
+awk 'NR % 5 == 4' flagstat_summary.tsv > column4.tsv
+awk 'NR % 5 == 0' flagstat_summary.tsv > column5.tsv
+
+paste column1.tsv column2.tsv column3.tsv column4.tsv column5.tsv > final_flagstat_summary.tsv
+```
+```
+bash curate_flagstats.sh
+```
+
+</details>
+</p>
+
+***
+
+<details><summary> 05. GATK: HaplotypeCaller </summary>
+<p>
+
+1. Create a GATK environment on ISAAC and install picard tools. **It is important to install this conda environment, but to call the program through spack by using the `module load gatk` command in order 1) avoid dependency issues, while 2) still ensuring that gatk is routed through the appropriate compiler on the ISAAC HPC system. I have had odd software conflicts/failures by attempting to run the version of GATK installed in the conda environment, as well as the natively installed GATK version outside of my conda environment. At some point, I will explore this odd interaction further, but this is a reliable fix for the moment.**
+
+```
+conda create gatk -c bioconda gatk4
+conda install -c bioconda picard
+conda activate gatk
+```
+
+2. Link the sorted BAMs from the 04_bwa directory in a new 05_gatk_haplotypecaller/ directory.
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/03_C.obtusa_reference-aligned/analysis/
+mkdir 04=5_gatk_haplotypecaller/
+ln -s ../04_bwa/*sorted.bam .
+```
+
+6. Run the following array to add/replace read groups using picard.
+```
+nano run_picard_array.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=picard
+#SBATCH --nodes=1
+#SBATCH --ntasks=5
+#SBATCH --mem=10G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=0-90
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *_sorted.bam))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# create an output file name
+OUT=`sed 's/_sorted.bam//' <(echo ${ARRAY_FILE})`
+
+# define the bam file from the array
+BAM=${ARRAY_FILE}
+
+echo "BAM $BAM"
+echo "OUT $OUT"
+
+picard \
+        AddOrReplaceReadGroups \
+        I=${BAM} \
+        O=${OUT}_sorted.RG.bam \
+        RGSM=$OUT \
+        RGLB=$OUT \
+        RGPL=illumina \
+        RGPU=$OUT
+
+echo BAM file $BAM had reads groups added/replaced by picard-2.27.3 in Slurm Task ID $SLURM_ARRAY_TASK_ID on $(date).
+```
+```
+sbatch run_picard_array.qsh
+```
+* Note 1: the array numbers were run in batches of 90 (Run 1: 0-90, Run 2: 91-180, Run 3: 181-269)
+
+7. Index the sorted bam files using samtools.
+```
+nano run_samtools_index.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=samtools_index
+#SBATCH --nodes=1
+#SBATCH --ntasks=10
+#SBATCH --mem=20G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --time=6:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load samtools
+
+for file in *_sorted.RG.bam; do samtools index $file; done
+```
+```
+sbatch run_samtools_index.qsh
+```
+
+8. Run the following gatk HaplotypeCaller array to create `g.vcf` files.
+```
+nano run_haplotypecaller_array.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=GATK_HaplotypeCaller
+#SBATCH --nodes=1
+#SBATCH --ntasks=10
+#SBATCH --mem=10G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=261-270
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=8:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *_sorted.RG.bam))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# define the BAM file from the array file
+BAM=${ARRAY_FILE}
+
+# create an output file name
+OUT=$( basename $BAM | sed 's/_sorted.RG.bam//g' )
+
+
+echo "BAM: $BAM"
+echo "OUT: $OUT"
+
+module load gatk
+
+gatk HaplotypeCaller \
+    -R /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/03_C.obtusa_reference-aligned/C.obtusa_reference/COB_r1.0.fasta \
+    -I $BAM \
+    -O ${OUT}.g.vcf \
+    --native-pair-hmm-threads 10 \
+    -ERC GVCF \
+
+echo BAM file $BAM was processed by the GATK Haplotype Caller by Slurm Task ID $SLURM_ARRAY_TASK_ID on $(date)
+```
+```
+sbatch run_haplotypecaller_array.qsh
+```
+
+9. To ensure the HaplotypeCaller jobs are completing, you can manually check the `.err` files with a text editor, which shows the entire task log, or use the following shortcut and ensure that your actual number of completed jobs matches with your expected number of completed jobs.
+```
+grep 'Traversal complete' *err | wc -l
+```
+
+10. Move array `.err` and `.out` files to a new directory to reduce clutter.
+```
+mkdir gatk_haplotypecaller_outs
+mv *err *out gatk_haplotypecaller_outs
+```
+
+
+</details>
+</p>
+
+***
+
+<details><summary> 06. GATK: GenomicsDBImport & GenotypeGVCFs </summary>
+<p>
+
+### 06. GATK:  GenomicsDBImport & GenotypeGVCFs
+
+1. Make a new directory in the analysis directory to house this analysis.
+```
+cd ..
+mkdir 06_gatk_genotype_gvcfs
+cd 06_gatk_genotype_gvcfs
+```
+
+2. Link the `g.vcf` files into the new directory.
+```
+ln -s ../02_gatk/*g.vcf* .
+```
+
+3. Create a list of all `g.vcf` files to feed into the CombineGVCFs tool.
+```
+ls *g.vcf > gvcfs.list
+```
+
+4. Unfortunately, the CombineGVCFs tool did not perform well on this dataset, so I attempted to use GenomicsDBImport, another GATK module. First I prepared an intervals file to feed into the tool. The following script will print the name of each scaffold in the assembly, remove the `>` in front of the scaffold name, as well as remove any genomic coordinate data, such as ">29382484 **1871870 0 29346470+,...,29353346+**". Failure to remove these features will result in failure of the GenomicsDBImport tool as GATK's GenotypeGVCFs tool does not include any genomic coordinate data in the resulting `g.vcf` files--only the scaffold name, in the above case: **29382484**.
+* Note: This file must end in a `.list` suffix to be properly read by GenomicsDBImport.
+
+```
+nano create_intervals_file.qsh
+```
+```
+# Create the intervals.list file.
+grep '>' /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/03_C.obtusa_reference-aligned/C.obtusa_reference/COB_r1.0.fasta | sed 's/>//' >> intervals.list
+
+input_file="intervals.list"
+
+while IFS= read -r line; do
+  # Surround each line with backticks and print the result
+  echo "$line" | cut -d' ' -f1 >> trimmed_intervals.list
+done < "$input_file"
+
+rm intervals.list
+```
+```
+bash create_intervals_file.qsh
+```
+
+5. Now, run the GenomicsImportDB tool using the following script. The following tool requires quite a bit of nuance to run appropriately, and it does not produce a simple combined GVCF, instead it creates a database file that includes all of joint-call data.  
+```
+nano run_genomicsdb_import.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=GenomicsDBImport
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --mem=300G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=condo-ut-genomics
+#SBATCH --qos=genomics
+#SBATCH --time=144:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load gatk
+
+gatk \
+        --java-options "-Xms280G -Xmx280G -XX:ParallelGCThreads=2" \
+        GenomicsDBImport \
+        --genomicsdb-shared-posixfs-optimizations \
+        --reference /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/03_C.obtusa_reference-aligned/C.obtusa_reference/COB_r1.0.fasta \
+        --variant gvcfs.list \
+        --genomicsdb-workspace-path Cthyoides_Cobtusa-ref_database \
+        --intervals trimmed_intervals.list \
+        --batch-size 50 \
+        --merge-contigs-into-num-partitions 25 \
+        --reader-threads 2
+```
+```
+sbatch run_genomicsdb_import.qsh
+```
+* `--java-options "-Xmx280g -Xms280g"` Sets the heap memory for java to 460 Gb (~10% less than the total requested on ISAAC).
+* `GenomicsDBImport` specifies the GATK tool.
+* `--genomicsdb-shared-posixfs-optimizations` toggles optimizations for HPC systems, such as those run on lustre (like ISAAC).
+* `--reference` designates the path to the reference sequence.
+* `--variant gvcfs.list` designates the list of gvcf files.
+* `--genomicsdb-workspace-path` designates the workspace output, aka the genomicsdb database directory. This will be your input file for GenotypeGVCFs.
+* `--overwrite-existing-genomicsdb-workspace`. This tool fails if the database already exists. I enabled this due to several failed trial runs due to forgetting to remove the previous database file. Use at your own risk.
+* `--intervals trimmed_intervals.list` designates the genomic intervals (scaffolds, in my case) in the reference to read over.
+* `--batch-size 50` sets the batch size of files to process. 50 is the recommended value used in-house at the Broad Institute (GATK's developer). Using the default number (all files) caused me to exceed the SLURM walltime. More info here: https://gatk.broadinstitute.org/hc/en-us/articles/360056138571-GenomicsDBImport-usage-and-performance-guidelines
+* `--merge-contigs-into-num-partitions 25`. This flag merges smaller contigs (but supposedly not larger ones) to improve speed and efficiency of the tool. This setting was recommended by the Broad Institute.
+* `--reader-threads 56`. This designates the number of parallel threads for GenomicsDBImport to run across.
+
+7. Run the GenotypeGVCFs tool again on the combined GVCF file.
+```
+nano run_gatk_genotypegvcfs.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=GenotypeGVCFs_trimmed_intervals
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --mem=30G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=condo-ut-genomics
+#SBATCH --qos=genomics
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=144:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load gatk
+
+gatk \
+   --java-options "-Xms20G -Xmx20G -XX:ParallelGCThreads=2" \
+    GenotypeGVCFs \
+   -R /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/03_C.obtusa_reference-aligned/C.obtusa_reference/COB_r1.0.fasta  \
+   -V gendb://Cthyoides_Cobtusa-ref_database \
+   --intervals trimmed_intervals.list \
+   -O Cthyoides_Cobtusa-refaligned_intervals.vcf.gz
+```
+```
+sbatch run_gatk_genotypegvcfs.qsh
+```
+
+</details>
+</p>
+
+***
 
 </details>
 
 ### Distant Reference
 <details><summary> Thuja plicata - The second closest reference (here, our "phylogenetically distant reference"; Illumina-based from a multigeneration-selfed individual) </summary>
 
+***
+
+<details><summary> 04. BWA: Alignment to the Thuja plicata genome - 7/14/23 </summary>
+<p>
+
+Testing the Thuja plicata genome:
+1. Make a new directory for this analysis.
+* filepath:
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/01_Ct_reference-aligned/analysis
+mkdir 01_bwa
+cd 01_bwa
+```
+
+2. Download the Thuja plicata genome.
+```
+curl --cookie jgi_session=/api/sessions/06136b61cda6b143bb89e9fccea3f35a --output download.20230713.163729.zip -d "{\"ids\":{\"Phytozome-572\":[\"5f2da2419a211ae42a190397\",\"5f2da2419a211ae42a190396\",\"5f2da2419a211ae42a190398\",\"5f2da2409a211ae42a190389\",\"5f2da2409a211ae42a19038b\",\"5f2da2409a211ae42a19038a\",\"5f2da2409a211ae42a19038e\",\"5f2da2409a211ae42a19038f\",\"5f2da2409a211ae42a190390\",\"5f2da2409a211ae42a190393\",\"5f2da2419a211ae42a190395\",\"5f2da2409a211ae42a19038c\",\"5f2da2409a211ae42a190394\",\"5f2da2409a211ae42a19038d\",\"5f2da2409a211ae42a190391\",\"5f2da2409a211ae42a190392\",\"5f6bb3637a4cf8208a33e0d9\"]}}" -H "Content-Type: application/json" https://files.jgi.doe.gov/filedownload/
+```
+
+2. Symbolically link all trimmed read files.
+```
+ln -s ../../../CT_dDocentHPC/analysis/04_fastp/fastp_out/*.gz .
+```
+
+3. Unzip the T. plicata genome.
+```
+unzip download.20230713.163729.zip
+```
+
+4. Copy the T. plicata genome to the main working directory.
+```
+cp /lustre/isaac/proj/UTK0032/zsmith10/CT_thuja_genome/analysis/01_bwa/Phytozome/PhytozomeV13/Tplicata/v3.1/assembly/Tplicata_572_v3.fa.gz .
+```
+
+5. Index the T. plicata genome with bwa.
+```
+module load bwa
+bwa index Tplicata_572_v3.fa.gz
+```
+
+6. Run a task array on the ISAAC HPC to align all reads files to the Thuja plicata and output merged binary alignment map (BAM) files.
+```
+#!/bin/bash
+#SBATCH --job-name=CT_bwa_array_2
+#SBATCH --nodes=1
+#SBATCH --ntasks=6
+#SBATCH --mem=30G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=181-270
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *r1.fq.gz))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# create an output file name
+OUT=$(echo $ARRAY_FILE | sed 's/.r1.fq.gz//')
+
+# define read 1 and read 2 from the array
+r1=${ARRAY_FILE}
+r2=`sed 's/.r1.fq.gz/.r2.fq.gz/' <(echo ${ARRAY_FILE})`
+
+echo "Read 1: $r1"
+echo "Read 2: $r2"
+
+
+module load bwa
+module load samtools
+
+bwa mem -t 5 \
+        Tplicata_572_v3.fa.gz \
+        $r1 \
+        $r2 \
+        | samtools view -bSh \
+        | samtools sort \
+        -@ 10 -m 4G \
+        -o $OUT\_sorted.bam
+
+echo Files $r1 and $r2 were aligned by task number $SLURM_ARRAY_TASK_ID on $(date)
+```
+
+7. Then, I ran samtools flagstats to look at alignment statistics.
+```
+nano run_flagstats.qsh
+```
+```
+#!/bin/bash
+#SBATCH -J CT_denovo_flagstats
+#SBATCH --nodes=1
+#SBATCH --ntasks=20
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=short
+#SBATCH --qos=short
+#SBATCH --mem-per-cpu=1G
+#SBATCH --time=3:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load samtools
+
+for b in *.bam
+do
+        stats_out=$( basename $b | sed 's/.bam/.stats/g')
+
+        samtools flagstat $b > $stats_out
+done
+```
+```
+sbatch run_flagstats.qsh
+```
+
+8. Then I collated the most useful statistics from the flagstats outputs into a single file.
+```
+nano collate_flagstats.sh
+```
+```
+for file in *stats
+do
+        echo $file >> flagstat_summary.tsv &&\
+        grep '+ 0 in total' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 mapped' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 primary mapped' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 supplementary' $file  >> flagstat_summary.tsv
+done
+```
+```
+bash collate_flagstats.sh
+```
+
+9. Finally, I curated the stats into a tsv file to copy into a spreadsheet in google drive [here](https://docs.google.com/spreadsheets/d/1KL36GsyMEJyrZzoKnBIFlJDbhraCc4ZqQv5sTebNm6w/edit#gid=250450826). 
+```
+nano curate_flagstats.sh
+```
+```
+awk 'NR % 5 == 1' flagstat_summary.tsv > column1.tsv
+awk 'NR % 5 == 2' flagstat_summary.tsv > column2.tsv
+awk 'NR % 5 == 3' flagstat_summary.tsv > column3.tsv
+awk 'NR % 5 == 4' flagstat_summary.tsv > column4.tsv
+awk 'NR % 5 == 0' flagstat_summary.tsv > column5.tsv
+
+paste column1.tsv column2.tsv column3.tsv column4.tsv column5.tsv > final_flagstat_summary.tsv
+```
+```
+bash curate_flagstats.sh
+```
+
+
+
+</details>
+</p>
+
+***
+
+<details><summary> 05. GATK: HaplotypeCaller </summary>
+<p>
+
+1. Create a GATK environment on ISAAC and install picard tools. **It is important to install this conda environment, but to call the program through spack by using the `module load gatk` command in order 1) avoid dependency issues, while 2) still ensuring that gatk is routed through the appropriate compiler on the ISAAC HPC system. I have had odd software conflicts/failures by attempting to run the version of GATK installed in the conda environment, as well as the natively installed GATK version outside of my conda environment. At some point, I will explore this odd interaction further, but this is a reliable fix for the moment.**
+
+```
+conda create gatk -c bioconda gatk4
+conda install -c bioconda picard
+conda activate gatk
+```
+
+2. Link the sorted BAMs from the 01_bwa directory in a new 02_gatk directory.
+```
+cd ..
+mkdir 02_gatk
+ln -s ../01_bwa/*bam .
+```
+
+3. Copy the Thuja plicata reference to this directory.
+```
+cp ../01_bwa/Tplicata_572_v3.fa.gz .
+```
+
+4. Unzip the T. plicata reference genome.
+```
+gunzip Tplicata_572_v3.fa.gz
+```
+
+5. Reindex the genome with samtools.
+```
+module load samtools
+samtools faidx Tplicata_572_v3.fa
+picard CreateSequenceDictionary R=Tplicata_572_v3.fa O=Tplicata_572_v3.dict
+```
+
+6. Run the following array to add/replace read groups using picard.
+```
+nano run_picard_array.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=CT_GATK1
+#SBATCH --nodes=1
+#SBATCH --ntasks=5
+#SBATCH --mem=10G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=0-90
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *_sorted.bam))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# create an output file name
+OUT=`sed 's/_sorted.bam//' <(echo ${ARRAY_FILE})`
+
+# define the bam file from the array
+BAM=${ARRAY_FILE}
+
+echo "BAM $BAM"
+echo "OUT $OUT"
+
+picard \
+        AddOrReplaceReadGroups \
+        I=${BAM} \
+        O=${OUT}_sorted.RG.bam \
+        RGSM=$OUT \
+        RGLB=$OUT \
+        RGPL=illumina \
+        RGPU=$OUT
+
+echo BAM file $BAM had reads groups added/replaced by picard-2.27.3 in Slurm Task ID $SLURM_ARRAY_TASK_ID on $(date).
+```
+```
+sbatch run_picard_array.qsh
+```
+* Note 1: the array numbers were run in batches of 90 (Run 1: 0-90, Run 2: 91-180, Run 3: 181-269)
+
+7. Index the sorted bam files using samtools.
+```
+nano run_samtools_index.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=samtools_index
+#SBATCH --nodes=1
+#SBATCH --ntasks=10
+#SBATCH --mem=20G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --time=6:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load samtools
+
+for file in *_sorted.RG.bam; do samtools index $file; done
+```
+```
+sbatch run_samtools_index.qsh
+```
+
+8. Run the following gatk HaplotypeCaller array to create `g.vcf` files.
+```
+nano run_haplotypecaller_array.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=CT_HaplotypeCaller_array4
+#SBATCH --nodes=1
+#SBATCH --ntasks=10
+#SBATCH --mem=10G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=261-270
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=8:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *_sorted.RG.bam))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# define the BAM file from the array file
+BAM=${ARRAY_FILE}
+
+# create an output file name
+OUT=$( basename $BAM | sed 's/_sorted.RG.bam//g' )
+
+
+echo "BAM: $BAM"
+echo "OUT: $OUT"
+
+module load gatk
+
+gatk HaplotypeCaller \
+    -R /lustre/isaac/proj/UTK0032/zsmith10/CT_thuja_genome/analysis/02_gatk/Tplicata_572_v3.fa \
+    -I $BAM \
+    -O ${OUT}.g.vcf \
+    --native-pair-hmm-threads 10 \
+    -ERC GVCF \
+
+echo BAM file $BAM was processed by the GATK Haplotype Caller by Slurm Task ID $SLURM_ARRAY_TASK_ID on $(date)
+```
+```
+sbatch run_haplotypecaller_array.qsh
+```
+
+9. To ensure the HaplotypeCaller jobs are completing, you can manually check the `.err` files with a text editor, which shows the entire task log, or use the following shortcut and ensure that your actual number of completed jobs matches with your expected number of completed jobs.
+```
+grep 'Traversal complete' *err | wc -l
+```
+
+10. Move array `.err` and `.out` files to a new directory to reduce clutter.
+```
+mkdir gatk_haplotypecaller_outs
+mv *err *out gatk_haplotypecaller_outs
+```
+
+11. Make a new directory and move samples that should be excluded from the study due to low read counts into it.
+```
+mkdir excluded_samples
+mv FL1_004* excluded_samples/
+mv MS-L4_006* excluded_samples/
+mv NJ-CAM_016* excluded_samples/
+```
+
+</details>
+</p>
+
+***
+
+<details><summary> 06. GATK: GenomicsDBImport & GenotypeGVCFs </summary>
+<p>
+
+### 06. GATK:  GenomicsDBImport & GenotypeGVCFs
+
+1. Make a new directory in the analysis directory to house this analysis.
+```
+cd ..
+mkdir 03_gatk_genotype_gvcfs
+cd 03_gatk_genotype_gvcfs
+```
+
+2. Link the `g.vcf` files, and the reference genome into the new directory.
+```
+ln -s ../02_gatk/*g.vcf* .
+ln -s ../02_gatk/Tplicata_572_v3.* .
+```
+
+3. Create a list of all `g.vcf` files to feed into the CombineGVCFs tool.
+```
+ls *g.vcf > gvcfs.list
+```
+
+4. Next, I ran the CombineGVCFs tool (which failed--see below).
+```
+nano run_combine_gvcfs.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=CT_CombineGVCFs
+#SBATCH --nodes=1
+#SBATCH --ntasks=50
+#SBATCH --mem=150G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus-bigmem
+#SBATCH --qos=campus-bigmem
+#SBATCH --time=24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load gatk
+
+gatk CombineGVCFs \
+        --java-options "-Xmx140g" \
+        -R Tplicata_572_v3.fa \
+        -variant gvcfs.list \
+        -O Cthyoides_ref2.g.vcf.gz
+```
+```
+sbatch run_combine_gvcfs.qsh
+```
+
+5. Unfortunately, the CombineGVCFs tool did not perform well on this dataset, so I attempted to use GenomicsDBImport, another GATK module. First I prepared an intervals file to feed into the tool. The following script will print the name of each scaffold in the assembly, remove the `>` in front of the scaffold name, as well as remove any genomic coordinate data, such as ">29382484 **1871870 0 29346470+,...,29353346+**". Failure to remove these features will result in failure of the GenomicsDBImport tool as GATK's GenotypeGVCFs tool does not include any genomic coordinate data in the resulting `g.vcf` files--only the scaffold name, in the above case: **29382484**.
+* Note: This file must end in a `.list` suffix to be properly read by GenomicsDBImport. 
+
+```
+nano create_intervals_file.qsh
+```
+```
+# Create the intervals.list file.
+grep '>' Tplicata_572_v3.fa | sed 's/>//' >> intervals.list
+
+# Replace 'input.txt' with the path to your input text file.
+input_file="intervals.list"
+
+while IFS= read -r line; do
+  # Surround each line with backticks and print the result
+  echo "$line" | cut -d' ' -f1 >> trimmed_intervals.list
+done < "$input_file"
+
+rm intervals.list
+```
+```
+bash create_intervals_file.qsh
+```
+
+6. Now, run the GenomicsImportDB tool using the following script. The following tool requires quite a bit of nuance to run appropriately, and it does not produce a simple combined GVCF, instead it creates a database file that includes all of joint-call data.  
+```
+nano run_genomicsdb_import.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=CT_GenomicsDBImport
+#SBATCH --nodes=1
+#SBATCH --ntasks=56
+#SBATCH --mem=500G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus-bigmem
+#SBATCH --qos=campus-bigmem
+#SBATCH --time=24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load gatk
+
+gatk \
+        --java-options "-Xmx460g -Xms460g" \
+        GenomicsDBImport \
+        --genomicsdb-shared-posixfs-optimizations \
+        --reference Tplicata_572_v3.fa \
+        --variant gvcfs.list \
+        --genomicsdb-workspace-path CT_database \
+        --overwrite-existing-genomicsdb-workspace \
+        --intervals trimmed_intervals.list \
+        --batch-size 50 \
+        --merge-contigs-into-num-partitions 25 \
+        --reader-threads 56
+```
+```
+sbatch run_genomicsdb_import.qsh
+```
+* `--java-options "-Xmx460g -Xms460g"` Sets the heap memory for java to 460 Gb (~10% less than the total requested on ISAAC).
+* `GenomicsDBImport` specifies the GATK tool.
+* `--genomicsdb-shared-posixfs-optimizations` toggles optimizations for HPC systems, such as those run on lustre (like ISAAC).
+* `--reference Tplicata_572_v3.fa` designates the reference sequence.
+* `--variant gvcfs.list` designates the list of gvcf files.
+* `--genomicsdb-workspace-path CT_database` designates the workspace output, aka the genomicsdb database directory. This will be your input file for GenotypeGVCFs.
+* `--overwrite-existing-genomicsdb-workspace`. This tool fails if the database already exists. I enabled this due to several failed trial runs due to forgetting to remove the previous database file. Use at your own risk.
+* `--intervals trimmed_intervals.list` designates the genomic intervals (scaffolds, in my case) in the reference to read over.
+* `--batch-size 50` sets the batch size of files to process. 50 is the recommended value used in-house at the Broad Institute (GATK's developer). Using the default number (all files) caused me to exceed the SLURM walltime. More info here: https://gatk.broadinstitute.org/hc/en-us/articles/360056138571-GenomicsDBImport-usage-and-performance-guidelines
+* `--merge-contigs-into-num-partitions 25`. This flag merges smaller contigs (but supposedly not larger ones) to improve speed and efficiency of the tool. This setting was recommended by the Broad Institute.
+* `--reader-threads 56`. This designates the number of parallel threads for GenomicsDBImport to run across.
+
+6.5. As a bonus, here's the slurm resource utilization from the above script. It appears that less resources were required than anticipated!
+```
+Job ID: 734083
+Cluster: isaac
+User/Group: zsmith10/tug2106
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 56
+CPU Utilized: 07:48:26
+CPU Efficiency: 1.87% of 17-09:26:00 core-walltime
+Job Wall-clock time: 07:27:15
+Memory Utilized: 157.33 GB
+Memory Efficiency: 31.47% of 500.00 GB
+```
+
+7. Run the GenotypeGVCFs tool again on the combined GVCF file.
+```
+nano run_gatk_genotypegvcfs.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=CT_GenotypeGVCFs
+#SBATCH --nodes=1
+#SBATCH --ntasks=48
+#SBATCH --mem=192G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --time=24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load gatk
+
+gatk \
+   --java-options "-Xmx180g" \
+    GenotypeGVCFs \
+   -R Tplicata_572_v3.fa  \
+   -V gendb://CT_database \
+   -O Cthyoides_refaligned.vcf.gz
+```
+```
+sbatch run_gatk_genotypegvcfs.qsh
+```
+
+</details>
+</p>
+
+***
+
 
 </details>
 
-<details><summary> De novo - Assembled from GBS reads using the dDocent pipeline (ranbow + CD hit) </summary>
-
-
-</details>
 
 ***
 
