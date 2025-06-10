@@ -6,6 +6,1164 @@
 
 ***
 
+<details><summary> DNA Extraction Protocol: E.Z.N.A.®Plant DNA DS Kit Modified Protocol </summary>
+<p>
+
+### Modified E.Z.N.A.®Plant DNA DS Kit Modified Protocol
+
+E.Z.N.A.®Plant DNA DS Kit - Fresh/Frozen/Dry Tissue Protocol 
+Materials and Equipment to be Supplied by User: 
+• Microcentrifuge capable of at least 12,000g 
+• Heat Block capable of 65°C 
+• Vortexer 
+• Nuclease-free 1.5 and 2 mL microcentrifuge tubes 
+• 100% isopropanol 
+• 100% ethanol 
+• Sample Disruption Method (See Pages 5-6) Before Starting: 
+• Prepare the DNA Wash Buffer and HBC Buffer according to the instructions on Page 4. 
+• Heat the Elution Buffer to 65°C. 
+
+Recommendation: Prepare buffers (if applicable) and label tubes during incubation period. 
+
+1. Prepare ~15 mg dry tissue  in a 1.5 or 2 mL microcentrifuge tube/vial (not provided). Homogenize at speed 7 (max speed) with a commercial bead mill in 30 second increments.
+**Use less tissue for plants heavy in polysaccharides and phenolics.
+2. Add 700 μL CSPL Buffer and 30 µL Proteinase K Solution. Vortex vigorously to mix. Make sure to disperse all clumps. 
+**Increase CSPL Buffer as needed to ensure clean withdrawal of 550 ul of supernatant withdrawal in Step 6.
+3. Incubate on a heat block at 65°C for 60 minutes. Invert gently to keep plant tissue suspended at approximately 5 minute intervals.
+4. Centrifuge at ~16,000g for 6 minutes. High centrifugation speed is required to form a dense pellet.
+5. Insert a Homogenizer Mini Column into a 2 mL Collection Tube. 
+6. Transfer 550 μL cleared supernatant to the Homogenizer Mini Column. 
+7. Centrifuge at ~16,000g for 1 minute. A second pellet may form. Take care not to disturb this pellet.
+8. Transfer the filtrate to a new 2 mL microcentrifuge tube (not provided). 
+9. Add 10 µL RNase A. Let sit at room temperature for 10 minutes. 
+10. Add 525 µL RBB Buffer and 525 µL XP2 Binding Buffer. Invert gently to mix thoroughly. 
+11. Insert a HiBind® DNA Mini Column into a 2 mL Collection Tube. 
+12. Transfer 750 µL lysate from Step 9 to the HiBind® DNA Mini Column. 
+13. Centrifuge at 12,000g for 1 minute. 
+14. Discard the filtrate and reuse the collection tube. 
+15. Repeat Steps 12-14 to transfer the remaining lysate. 
+16. Add 500 µL HBC Buffer. Note: HBC Buffer must be diluted with 100% isopropanol before use. 
+17. Centrifuge at 12,000g for 1 minute. 1
+8. Discard the filtrate and reuse collection tube. 
+19. Add 700 µL DNA Wash Buffer. Note: DNA Wash Buffer must be diluted with 100% ethanol prior to use. 
+20. Centrifuge at 12,000g for 1 minute. 
+21. Discard the filtrate and reuse the collection tube. 
+22. Repeat Steps 19-21 for a second DNA Wash Buffer step. 
+23. Centrifuge the empty HiBind® DNA Mini Column for 3 minutes at 12,000g to dry the column matrix. Note: It is important to dry the HiBind® DNA Mini Column matrix before elution. Residual ethanol may interfere with downstream applications. 
+24. Transfer the HiBind® DNA Mini Column to a clean 1.5 mL microcentrifuge tube. 
+25. Add 30 μL Elution Buffer heated to 65°C directly to the center of the column membrane. 
+26. Let sit at room temperature for 1 minute. 
+27. Centrifuge at 12,000g for 1 minute. 
+28. Repeat Steps 25 - 27
+29. Let sit at room temperature for 1 minute. 
+30. Centrifuge at 12,000g for 1 minute. 
+31. Store filtrate containing DNA at -20°C.
+
+Troubleshooting Notes:
+Increasing incubation time may increase DNA quantity yields for difficult samples. Increasing inversions to mix tissue and lysis buffer may also improve DNA quantity.
+Increasing homogenization rounds for already powdered tissues did not increase yields consistently or significantly, but did increase DNA fragmentation. 
+Increased homogenization may inhibit extraction quality, due to the inability for the powdered tissue to mix with the lysis buffer, allowing nuclease degradation.
+Homogenizing in 15 second increments will reduce thawing time and may reduce DNA degradation. 
+Inverting instead of vortexing may reduce DNA degradation.
+
+</details>
+</p>
+
+***
+
+<details><summary> Sequencing: GBS PE150 </summary>
+<p>
+
+### Sequencing
+
+* Sequencing Facility: University of Wisconsin Madison Biotechnology Center
+* Sequencing Platform: Illumina Novaseq 6000 PE-150 Sequencing 
+* Flow Cell: 1 Lane of an S4 Flow Cell (Estimated ~2.25B reads)
+* Restriction Enzyme: [ApeKI](https://www.neb.com/products/r0643-apeki#Product%20Information)
+<img src="https://www.neb.com/-/media/catalog/cutsite-image-svg/r0643_apeki_cutsite.svg?rev=cc1e922936374905a4998cc78a31314e&la=en&hash=1B7A6EC825EE38C2661C5B727BA3876A" height="40" width="200">
+
+* Sequencing Method: Genotyping-by-Sequencing (GBS)
+* Sequencing Ship Date: 4/10/23
+* Sample Well Spreadsheet: https://docs.google.com/spreadsheets/d/1zGep4U3G3s-tFYUmbVR9J3l5Yo8RKWxa/edit#gid=604014475
+
+* Shipping: Samples were shipped on dry ice on 4/10/23 and received at the Wisconsin Biotechnology Center on 4/11/23.
+</details>
+</p>
+
+***
+
+<details><summary> 00. Rclone v1.62.2 & Globus Connect Personal: Data Transfer & Backup - 5/10/23 </summary>
+<p>
+
+00. Rclone v1.62.2 & Globus Connect Personal: Data Transfer & Backup
+
+1. First, I transferred the files from the `UW-Madison Biotechnology Center - External Users` Globus Drive by setting up a local endpoint. This required downloading [Globus Connect Personal](https://www.globus.org/globus-connect-personal) to sync the files directly to my OneDrive account through the web-based Globus GUI. Note: Globus auto-performs a checksum post-transfer to notify you of errors.
+
+2. Due to the `Rclone` version in `Spack` being out-of-date, I installed my own using `mamba`.
+```
+mamba create -n rclone -c conda-forge rclone
+mamba activate rclone
+```
+
+3. Third, I copied the completed files from my OneDrive `Rclone` remote to Flora. For information on how to set up your own Google Drive or OneDrive remote, I recommend this [tutorial](https://www.youtube.com/watch?v=UzQIKYZDlLI&ab_channel=eKiwi-BlogTutorialsEnglish).
+```
+cd /pickett_flora/projects/chamaecyparis_thyoides/raw_data
+rclone -Pv copy zs_onedrive:raw_data/atlantic_white_cedar .
+```
+
+4. Finally, I ran a checksum on Flora to ensure the files had been copied from their original location correctly.
+```
+md5sum -c Staton_md5sum.txt
+```
+* Output:
+```
+Staton-UT-Plate-3_S22_L004_R1_001.fastq.gz: OK
+Staton-UT-Plate-3_S22_L004_R2_001.fastq.gz: OK
+Staton-UT-Plate-1_S20_L004_R1_001.fastq.gz: OK
+Staton-UT-Plate-1_S20_L004_R2_001.fastq.gz: OK
+Staton-UT-Plate-2_S21_L004_R2_001.fastq.gz: OK
+Staton-UT-Plate-2_S21_L004_R1_001.fastq.gz: OK
+```
+
+</details>
+</p>
+
+***
+
+<details><summary> 01. Sabre v1.000: Demultiplexing - 5/12/23 </summary
+<p>
+
+## 01. Sabre v1.000: Demultiplexing
+
+1. In the `/pickett_flora/projects/chamaecyparis_thyoides/` directory, I created a new analysis directory: `analysis_05.10.2023`.
+```
+cd /pickett_flora/projects/chamaecyparis_thyoides/
+mkdir analysis_05.10.2023
+cd analysis_05.10.2023
+```
+
+2. Then, I created a new directory for demultiplexing in sabre and copied the raw data and GBS barcodes file into it.
+```
+mkdir 01_sabre
+cd 01_sabre
+cp ../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/*fastq.gz .
+cp ../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/GBS-ApeKI-1-96_barcodes.txt .
+```
+
+3. I installed the newest version of `sabre` in its own conda environment and activated it.
+```
+mamba create -n sabre -c bioconda sabre
+mamba activate sabre
+```
+
+4. Sabre required a barcode reference file without a header, so I made a copy of the `GBS-ApeKI-1-96_barcodes.txt` file and manually removed line 1.
+```
+cp GBS-ApeKI-1-96_barcodes.txt sabre_barcode_input.txt
+nano sabre_barcode_input.txt
+# Ctrl + K to remove line 1
+```
+
+4. I produced saber input files using GoogleSheets.
+```
+Explain google sheets here
+```
+
+5. Create a directory for each plate and copy the raw data into the file. Run a checksum to ensure the files copied properly.
+* Plate 1
+```
+mkdir Plate_1 Plate_2 Plate_3
+cd Plate_1
+cp ../../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/*Plate-1* .
+cp ../../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/Staton_md5sum.txt .
+md5sum -c Staton_md5sum.txt > md5sum_out.txt
+```
+* Plate 2
+```
+cp ../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/*Plate-2* .
+cp ../../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/Staton_md5sum.txt .
+md5sum -c Staton_md5sum.txt > md5sum_out.txt
+```
+
+* Plate 3
+```
+cp ../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/*Plate-3* .
+cp ../../../raw_data/Staton/Bioinformatics_Resource_Center/230505_BH533KDSX7/Staton_md5sum.txt .
+md5sum -c Staton_md5sum.txt > md5sum_out.txt
+```
+
+6. Secure copy the barcode input files made in excel into each place directory from your local terminal.
+```
+scp Sabre_barcodes_Plate_1.tsv 'zsmith10@flora.ag.utk.edu:/pickett_flora/projects/chamaecyparis_thyoides/analysis/01_sabre/Plate_1/'
+scp Sabre_barcodes_Plate_2.tsv 'zsmith10@flora.ag.utk.edu:/pickett_flora/projects/chamaecyparis_thyoides/analysis/01_sabre/Plate_2/'
+scp Sabre_barcodes_Plate_3.tsv 'zsmith10@flora.ag.utk.edu:/pickett_flora/projects/chamaecyparis_thyoides/analysis/01_sabre/Plate_3/'
+```
+* Example of file format, which includes 1 column of barcodes, 1 column of forward reads output names, and 1 column of reverse read output names.
+```
+CTCC    21-CT-AL-L1-008-R1.fastq        21-CT-AL-L1-008-R2.fastq
+TTCTC   21-CT-AL-L1-012-R1.fastq        21-CT-AL-L1-012-R2.fastq
+GCTTA   21-CT-AL-L2-001-R1.fastq        21-CT-AL-L2-001-R2.fastq
+AACGCCT 21-CT-AL-L2-002-R1.fastq        21-CT-AL-L2-002-R2.fastq
+AGGC    21-CT-AL-L2-003-R1.fastq        21-CT-AL-L2-003-R2.fastq
+TCGTT   21-CT-AL-L2-004-R1.fastq        21-CT-AL-L2-004-R2.fastq
+TGGCTA  21-CT-AL-L2-005-R1.fastq        21-CT-AL-L2-005-R2.fastq
+TGCTGGA 21-CT-AL-L2-006-R1.fastq        21-CT-AL-L2-006-R2.fastq
+TGCA    21-CT-AL-L2-007-R1.fastq        21-CT-AL-L2-007-R2.fastq
+```
+6. Each file should now contain the following files:
+* A forward and reverse read set for an entire plate.
+* A barcode input text file
+* An md5checksum file
+* an md5checksum output text file
+
+7. Now, run the following scripts in each respective plate file (`Plate_1`/`Plate_2`/`Plate_3`) to demultiplex the plate files into individual samples.
+
+* Plate 1:
+```
+nano run_sabre_plate_1.sh
+```
+```
+sabre pe \
+        -f Staton-UT-Plate-1_S20_L004_R1_001.fastq.gz \
+        -r Staton-UT-Plate-1_S20_L004_R2_001.fastq.gz \
+        -b Sabre_barcodes_Plate_1.tsv \
+        -u unknown_barcode_Plate1_R1.fastq \
+        -w unknown_barcodes_Plate1_R2.fastq \
+        > Plate_1_out.txt
+```
+```
+bash run_sabre_plate_1.sh
+```
+* Plate 2:
+```
+nano run_sabre_plate_2.sh
+```
+```
+sabre pe \
+        -f Staton-UT-Plate-2_S21_L004_R1_001.fastq.gz \
+        -r Staton-UT-Plate-2_S21_L004_R2_001.fastq.gz \
+        -b Sabre_barcodes_Plate_2.tsv \
+        -u unknown_barcode_Plate2_R1.fastq \
+        -w unknown_barcodes_Plate2_R2.fastq \
+        > Plate_2_out.txt
+```
+```
+bash run_sabre_plate_2.sh
+```
+
+* Plate 3:
+```
+nano run_sabre_plate_3.sh
+```
+```
+sabre pe \
+        -f Staton-UT-Plate-3_S22_L004_R1_001.fastq.gz \
+        -r Staton-UT-Plate-3_S22_L004_R2_001.fastq.gz \
+        -b Sabre_barcodes_Plate_3.tsv \
+        -u unknown_barcode_Plate3_R1.fastq \
+        -w unknown_barcodes_Plate3_R2.fastq \
+        > Plate_3_out.txt
+```
+```
+bash run_sabre_plate_3.sh
+```
+
+8. The raw, demultiplexed fastq files from each plate was copied to `cd /pickett_flora/projects/chamaecyparis_thyoides/raw_data/Demultiplexed_Reads` and compressed.
+* Plate 1:
+```
+cd /pickett_flora/projects/chamaecyparis_thyoides/raw_data/Plate_1
+tar
+```
+
+* Plate 2:
+```
+cd /pickett_flora/projects/chamaecyparis_thyoides/raw_data/Plate_1
+tar
+```
+
+* Plate 3:
+```
+cd /pickett_flora/projects/chamaecyparis_thyoides/raw_data/Plate_1
+tar
+```
+
+
+</details>
+</p>
+
+***
+
+<details><summary> 02. FastQC v0.12.1mam & MultiQC: Quality Control Checks - 5/13/23 </summary>
+<p>
+
+## 02: FastQC v0.12.1 & MultiQC v1.14: Quality Control Checks
+
+1. Make a new directory to house your QC files under `analysis`.
+```
+mkdir 02_fastqc
+cd 02_fastqc
+```
+
+2. Symbolically link all of individual read files into individual plate directories in a new `samples` directory.
+```
+mkdir samples
+cd samples
+mkdir Plate_1
+cd Plate_1
+ln -s ../../../01_sabre/Plate_1/*.fastq .
+cd ../Plate_2
+ln -s ../../../01_sabre/Plate_2/*.fastq .
+cd ../Plate_3
+ln -s ../../../01_sabre/Plate_3/*.fastq .
+```
+
+3. Load fastqc either through spack or your own conda environment (I'm using my own version). You can create an environment and load it with the follow lines of code.
+```
+mamba create -n fastqc -c bioconda fastqc
+mamba activate fastqc
+```
+
+4. Now, run fastqc in each directory (`samples/Plate_1`, `samples/Plate_2`, and `samples/Plate3`). I ran these three plates synchronously in separate screens to speed up the process.
+```
+nano run_fastqc.sh
+```
+```
+for file in *.fastq
+do
+	BASE=$( basename "$file" | sed 's/.fastq//')
+	echo "File $file"
+        echo "Base $BASE"
+	mkdir $BASE.fastQC
+
+	fastqc -o $BASE.fastQC --threads 20 $file >& $BASE.fastQC.out
+done
+```
+```
+bash run_fastqc.sh
+```
+5. Finally, run multiqc in the `samples` directory, and it will automatically find all of the FastQC reports in each plate subdirectory and compile them into a single report. You can view your multiqc output in a browser by secure-copying it to your desktop.
+```
+mamba deactivate
+mamba activate multiqc
+cd /pickett_flora/projects/chamaecyparis_thyoides/02_fastqc/samples
+multiqc .
+```
+* In a local terminal:
+```
+scp 'zsmith10@flora.ag.utk.edu:/pickett_flora/projects/chamaecyparis_thyoides/analysis/02_fastqc/multiqc_report.html' .
+```
+
+</details>
+</p>
+
+***
+
+<details><summary> 03. Fastp: Read Trimming </summary>
+<p>
+
+1. Unfortunately, trimmomatic did a poor job of trimming our reads. It threw away a large portion of viable data and failed to remove universal illumina adapters, so I tried using fastp. First, I created a fastp directory in the analysis directory to trim reads.
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/CT_dDocentHPC/analysis/05_dDocentHPC
+mkdir fastp
+cd fastp
+```
+
+2. Next, I symbolically linked the raw fastq files from the links in my dDocentHPC directory.
+```
+ln -s /lustre/isaac/proj/UTK0032/zsmith10/CT_dDocentHPC/analysis/05_dDocentHPC/*fq.gz .
+```
+
+3. To accommodate all of the outfiles, I created an array_out and array_err directory to house the array equivalents of the slurm-out files, as well as a fastp_out directory to house the trimmed readsin the 06_fastp directory.
+```
+mkdir array_out
+mkdir array_err
+mkdir fastp_out
+```
+
+4.To run fastp efficiently, I constructed a task array and trimmed files in batches of 80 to avoid overcapping jobs on ISAAC.
+```
+nano run_fastp_array.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=CT_fastp_array
+#SBATCH --nodes=1
+#SBATCH --ntasks=16
+#SBATCH --mem=15G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=241-320
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *F.fq.gz))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# create an output file name
+OUT=$(echo $ARRAY_FILE | sed 's/.F.fq.gz//')
+
+# define read 1 and read 2 from the array
+r1=${ARRAY_FILE}
+r2=`sed 's/.F.fq.gz/.R.fq.gz/' <(echo ${ARRAY_FILE})`
+
+# dDocent mkREF requires trimmed files in an r1/r2.fq.gz format.
+r1_out=`sed 's/.F.fq.gz/.r1.fq.gz/' <(echo ${ARRAY_FILE})`
+r2_out=`sed 's/.R.fq.gz/.r2.fq.gz/' <(echo ${r2})`
+
+echo "Read 1: $r1"
+echo "Read 2: $r2"
+echo "Read 1 Out: $r1_out"
+echo "Read 2 Out: $r2_out"
+
+fastp -i ${r1} -o fastp_out/${r1_out} \
+         -I ${r2} -O fastp_out/${r2_out} \
+        --adapter_fasta universal_adapters.fa \
+        --average_qual 20 \
+        --detect_adapter_for_pe \
+        --qualified_quality_phred 20 \
+        --cut_front \
+        --cut_tail \
+        --cut_window_size 4 \
+        --length_required 36 \
+        --thread 16 \
+        --json fastp_out/${OUT}.json \
+        --html fastp_out/${OUT}.html \
+        --unpaired1 fastp_out/unpaired/${OUT}_unpaired \
+        --unpaired2 fastp_out/unpaired/${OUT}_unpaired
+```
+```
+sbatch run_fastp_array.qsh
+```
+
+* `-i` and `-o` specify the forward read.
+* `-I` and `-O` specify the reverse read.
+* `--adapter_fasta` specifies the adapter file to trim (fastp also auto-detect adapters, but this is the manual backup)
+* `--average_qual 20` defines the average quality across sliding windows.
+* `--detect_adapter_for_pe` detects adapters in paired ends
+* `--qualified_quality_phred 20` sets a minimum phred quality of 20 for trimming
+TBC....
+
+</details>
+</p>
+
+***
+
+<details><summary> 4. dDocent: Reference Optimization -- Needs Updating </summary>
+<p>
+
+1. Create a new directory in the main analysis directory to how the new analysis.
+```
+cd /pickett_flora/projects/chamaecyparis_thyoides/analysis/
+mkdir 04_RefOpt_dDocent
+cd 04_RefOpt_dDocent
+```
+
+2. Download the reference optimization script from the dDocent website and copy the RefMapOpt script from the following address (https://github.com/jpuritz/dDocent/blob/master/scripts/RefMapOpt.sh) into a new `.sh`. Curl doesn't seem to work for whatever reason.
+```
+curl -L -O https://github.com/jpuritz/dDocent/raw/master/scripts/ReferenceOpt.sh
+nano RefMapOpt.sh # paste RefMapOpt.sh script text in here.
+```
+
+3. The ReferenceOpt.sh script only requires a subset of individuals per population to capture total diversity, however I chose to include all of the individuals due to the size of the genome and uncertainness of diversity of regions captured.
+```
+ln -s ../03_fastp/fastp/*fq.gz .
+ln -s ../03_fastp/fastp/fastp_out/*fq.gz .
+```
+
+3. Now, run the reference optimization script, which will iterate over the sample using various cutoff values for within individual site coverage, among individuals locus presence, and percent clustering identity. I included annotations in this script to map out what each argument means. 
+* There is also a copy of the original, more broad exploratory script I ran to more fully explore the most likely parameters. The bounds of the broader range mostly clustered at ~700-~800 assembled contigs, which likely did not differentiate between paralogs. The script below re-explores the contigs that resulted in the best mapping rates (i.e., those that would be most likely to capture the true parology within the genome). I reran this script as I originally (accidentally) included 3 samples that had failed sequencing, so I wanted to validate my initial results.
+```
+nano run_ReferenceOpt.sh
+```
+```
+#bash ReferenceOpt.sh \
+#       3 \      minK1 - Min coverage within individuals
+#       6 \      maxK1 - Min coverage within individuals
+#       5 \     minK2 - Min # of individuals in which sequence is found
+#       15 \    maxK2 - Min # of individuals in which sequence is found
+#       PE \    Assembly_Type - PE=Paired-end
+#       30 \    Number_of_Processors
+#       .80 \   minSim - Minimum similarity for clustering value
+#       .98 \   maxSim - Max similarity for clustering value
+#       .01 \   increment - increment by which clustering similarity is increased per run between min and max values
+
+bash ReferenceOpt.sh 3 6 6 10 PE 30 .88 .96 .01
+
+# original run:
+# bash ReferenceOpt.sh 3 8 5 16 PE 20 .80 .98 .01
+```
+```
+bash run_ReferenceOpt.sh
+```
+* output:
+```
+Average contig number = 1269.64
+The top three most common number of contigs
+X       Contig number
+3       969
+3       931
+3       889
+The top three most common number of contigs (with values rounded)
+X       Contig number
+41      900
+35      1000
+21      800
+```
+
+4. After running this script, I imported the `kopt.data` output file (the K optimization file) into R and used the following ggplot code to visualize the script.
+```
+p <- ggplot(df, aes(x=Similarity, y=Contigs, group=K1K2)) +
+  scale_x_continuous(breaks=seq(0.80,0.98,0.02))+
+  geom_line(aes(colour = K1K2))
+p
+
+ggsave("H:/My Drive/Lab/Projects/Atlantic White-cedar Project/Analyses/R_analyses/Cthyoides_R_Analyses/dDocent_RefOpt/test.png", p, dpi=300, height = 5000, width = 5000, units = "px")
+```
+
+![9 17 23_kopt_data](https://github.com/statonlab/StatonLabDocs/assets/115577973/a112699d-cae1-4170-baeb-9afc4c16c7f5)
+
+
+
+5. This plot suggests that the best cutoff falls around the .92 clustering similarity for the assembly of homologs and .94 clustering similarity for when homologs are split into paralogs. This cutoff value is inferred by looking at the inflection point of the line. There are 3 inflection points on this point, one at 0.92, one at 0.94, and one at 0.96. According to the author, **"Basically, we expect that there should be a few different inflection points based on clustering.  The first inflection should reflect the proper clustering of alleles into loci, and the second should represent the clustering of homologs and paralogs into single loci.  Generally, for dDocent assemblies, there is usually one clear point of inflection in the curve where lowering the clustering threshold has much lower effect on the number of loci.  This is likely the ideal clustering %."**
+
+* Note: There is some EXCELLENT discussion on choosing these inflection points with the author (Jon Puritz) here: https://groups.google.com/g/ddocent/c/z-Owv1JNinI/m/rbsNustjBAAJ
+
+6. Now that a clustering cutoff has been identified, I need to generate a list of individuals to specify which individuals should be aligned to the reference. I am choosing to run an individual from each site--the script runs 20 random individuals by default--to ensure that each reference is evaluated as identically as possible.
+```
+ls -1 *_001.F* | sed 's/.F.fq.gz//' > list_of_individuals.txt
+```
+* `list_of_individuals.txt`:
+```
+AL-L1_001
+AL-L2_001
+DE1_001
+FL1_001
+FL2_001
+MD1_001
+MI1_001
+MS1_001
+MS2_001
+MS3_001
+MS4_001
+MS-L1_001
+MS-L2_001
+MS-L3_001
+MS-L4_001
+MS-L5_001
+MS-L6_001
+MS-L7_001
+MS-L8_001
+NJ1_001
+NJ-BP_001
+NJ-BUR_001
+NJ-CAM_001
+NJ-GC_001
+NJ-HP_001
+NJ-OB_001
+NJ-OCN_001
+NJ-ST_001
+```
+
+7. After some troubleshooting with this script, I realized that the BWA parameters within the shell script were yielding no alignments. To circumvent this, I made a copy of the `RefMaptOpt.sh` script named `experimental_RefMapOpt.sh`. Specifically, I changed the BWA code to the following:
+```
+cp RefMapOpt.sh experimental_RefMapOpt.sh
+```
+```
+        #BWA for mapping for all samples
+        rm $r.$j.results 2>/dev/null
+
+        map_reads(){
+        r=$2;j=$3
+                if [[ "$ATYPE" == "HYB"  || "$ATYPE" == "ROL" || "$ATYPE" == "RPE" ]]; then
+                        if [ -f "$1.R2.fq.gz" ]; then
+                                bwa mem -t 8 reference.fasta $1.R1.fq.gz $1.R2.fq.gz  2> bwa.$1.log | mawk '!/\t[2-9].[SH].*/' | mawk '!/[2-9].[SH]\t/' | samtools view -@4 -q 1 -SbT reference.fasta - > $1.bam
+                        else
+                                bwa mem -t 8 reference.fasta $1.R1.fq.gz 2> bwa.$1.log | mawk '!/\t[2-9].[SH].*/' | mawk '!/[2-9].[SH]\t/' | samtools view -@4 -q 1 -SbT reference.fasta - > $1.bam
+                        fi
+                else
+                        if [ -f "$1.R2.fq.gz" ]; then
+
+                        INSERT=$(mawk '!/^>/' reference.fasta | mawk '{ print length() }' | mawk '{ sum += $1; n++ } END { if (n > 0) print int(sum / n); }')
+                        INSERTH=$(($INSERT + 100 ))
+                        INSERTL=$(($INSERT - 100 ))
+                        SD=$(($INSERT / 5))
+
+                        bwa mem -I $INSERT,$SD,$INSERTH,$INSERTL -t 8 reference.fasta $1.R1.fq.gz $1.R2.fq.gz 2> bwa.$1.log | mawk '!/\t[2-9].[SH].*/' | mawk '!/[2-9].[SH]\t/' | samtools view -@4 -q 1 -SbT reference.fasta - > $1.b$
+
+                        else
+
+                        bwa mem -t 8 reference.fasta $1.R1.fq.gz 2> bwa.$1.log | mawk '!/\t[2-9].[SH].*/' | mawk '!/[2-9].[SH]\t/' | samtools view -@4 -q 1 -SbT reference.fasta - > $1.bam
+                        fi
+                fi
+```
+
+8. Next, I ran the `RefMapOpt.sh`, which generates de novo references for the specified K1 and K2 cutoff at a designated clustering value and aligns the specified list of 20 samples to the reference to generate preliminary statistics on mapping percentages. According to the the author, Jon Puritz, there should be two inflection points in the above `kopt.data` curves. The first represents accurate assembly of sequences into genes, and the second represents the separation of homologs and paralogs. The second inflection point is the best clustering identity and, in this case, was 0.94.
+```
+nano run_RefMapOpt.sh
+```
+```
+#bash ReferenceOpt.sh \
+#       3 \ #   minK1 - Min coverage within individuals
+#       8 \ #   maxK1 - Min coverage within individuals
+#       5 \ #   minK2 - Min # of individuals in which sequence is found
+#       15 \ #  maxK2 - Min # of individuals in which sequence is found
+#       PE \ #  Assembly_Type - PE=Paired-end
+#       30 \ #  Number_of_Processors
+#       .86 \ # Sim - Similarity for clustering value
+#       list_of_individuals.txt \  #the list of individuals to map to each assembled reference
+
+bash RefMapOpt.sh 3 8 6 15 0.94 PE 35 list_of_individuals.txt
+```
+```
+bash run_RefMapOpt.sh
+mv mapping.results mapping.results_0.94
+```
+
+9. To validate my results, I also ran a `RefMapOpt.sh` run at 0.92 clustering similarity to compare the first inflection points (sequence assembly into genes).
+```
+nano run_RefMapOpt.sh
+```
+```
+bash RefMapOpt.sh 3 8 6 15 0.92 PE 35 list_of_individuals.txt
+```
+```
+bash run_RefMapOpt.sh
+mv mapping.results mapping.results_0.92
+```
+
+10. The output of these scripts are stored in a file called `mapping.results`, which I changed the name of between RefMapOpt runs to ensure my results would not be overwritten. 
+
+11. The most important parameters in the `mapping.results` files are: 
+* mean0coverage
+* Mean_Proper_Mapping
+* MisMatch
+
+The goal is to maximize the coverage and proper mapping, while minimizing mismatch sequences. See results for `mapping.results_0.94` [here](https://docs.google.com/spreadsheets/d/1QF6-v47_8mLqe2f1iaWItZTfoA3ZfIrKP50lS5UiPu8/edit?usp=sharing):
+
+12. To select my final reference, I took a conservative approach by minimizing the number of mismatches, while maximizing the number of properly mapped reads (Mean_Proper_Mapping). While we also want to maximize coverage, it is important to note that coverage and number of assembled contigs have a negative relationship, i.e., assessing coverage can be somewhat misleading as the correct clustering (i.e., splitting homologs into paralogs) will naturally yield lower coverage due to the increased number of assembled contigs.
+
+
+</details>
+</p>
+
+***
+
+<details><summary> 5. dDocent: De novo Reference Assembly </summary>
+<p>
+
+1. First, I ensured that all of my sample reads were linked into a new directory.
+```
+cd /pickett_flora/projects/chamaecyparis_thyoides/analysis
+mkdir 05_dDocent_assembly
+cd 05_dDocent_assembly
+ln -s ../03_fastp/fastp/*fq.gz .
+ln -s ../03_fastp/fastp/fastp_out/*fq.gz .
+```
+
+2. Based on my results, a K1 cutoff of 4, a K2 cutoff of 7, and a % clustering similarity appeared to yield the most optimal reference. Thus, I ran dDocent in non-interactive mode using the config file with the following parameters to assemble the reference.
+```
+conda activate dDocent
+dDocent config.file
+```
+```
+Variables used in dDocent (version 2.9.4) run at Fri Sep 29 12:39:46 EDT 2023
+Number of Processors
+20
+Trimming
+no
+Assembly?
+yes
+Type_of_Assembly
+PE
+Clustering_Similarity%
+0.96
+Minimum within individaul coverage level to include a read for assembly (K1)
+3
+Minimum number of individuals a read must be present in to include for assembly (K2)
+8
+Mapping_Reads?
+no
+Mapping_Match_Value
+1
+Mapping_MisMatch_Value
+4
+Mapping_GapOpen_Penalty
+6
+Calling_SNPs?
+no
+Email
+zsmith10@vols.utk.edu
+```
+
+
+</details>
+</p>
+
+***
+
+<details><summary> 6. BWA </summary>
+<p>
+
+1. Now, to run GATK and call SNPs, I copied the assembled reference from Flora to ISAAC. I have created a new directory to hold the raw reference in my existing `chamaecyparis_thyoides` directory. I then renamed the reference to include the parameters I used to create it for future reference. 
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/02_Ct_denovo_dDocent2GATK/02_analysis_C0.96_k3_k8_current/reference_C0.96_k3_k8/reference.fasta
+scp 'zsmith10@flora.ag.utk.edu:/pickett_flora/projects/chamaecyparis_thyoides/analysis/05_dDocent_assembly/reference.fasta' .
+```
+
+2. Next, I indexed the reference with BWA, samtools, and picard to prepare it for future use.
+```
+module load bwa
+bwa index reference.fasta
+conda activate gatk
+picard CreateSequenceDictionary R=reference.fasta O=reference.dict
+module load samtools
+samtools faidx reference.fasta
+```
+
+3. Then, I created a new analysis directory in the main de novo analysis directory.
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/02_Ct_denovo_dDocent2GATK/02_analysis_C0.96_k3_k8_current
+mkdir 06_bwa
+cd 06_bwa
+```
+
+4. Next, I linked the raw reads and coped the reference folder (including indices) into this new directory. These reads were already present on ISAAC due to my work with another reference-based alignment method. The reads in this folder do not include the 3 samples that were poorly sequenced.
+```
+cp -r ../../denovo_reference/ .
+ln -s ../../../01_Ct_reference-aligned/analysis/02_fastp/fastp_out/*fq.gz .
+```
+
+5. To confirm that I had the correct number of samples, I counted the number of read files in the folder.
+```
+ls *r1.fq.gz | wc -l
+```
+* This returned 266 read files as expected.
+
+6. Next, I ran bwa on the 266 samples and sorted the resulting BAM files. 
+```
+nano run_bwa_haplotypecaller.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=CT_denovo_bwa
+#SBATCH --nodes=1
+#SBATCH --ntasks=6
+#SBATCH --mem=30G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=1-89
+#SBATCH -o bwa_array_out/%x_%A_%a.out
+#SBATCH -e bwa_array_err/%x_%A_%a.err
+#SBATCH --time=4:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *r1.fq.gz))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# create an output file name
+OUT=$(echo $ARRAY_FILE | sed 's/.r1.fq.gz//')
+
+# define read 1 and read 2 from the array
+r1=${ARRAY_FILE}
+r2=`sed 's/.r1.fq.gz/.r2.fq.gz/' <(echo ${ARRAY_FILE})`
+
+echo "Read 1: $r1"
+echo "Read 2: $r2"
+
+module load bwa
+module load samtools
+
+bwa mem -t 5 \
+        ../reference_C0.96_k3_k8/reference.fasta \
+        $r1 \
+        $r2 \
+        | samtools view -bSh \
+        | samtools sort \
+        -@ 10 -m 4G \
+        -o $OUT\_sorted.bam
+
+echo Files $r1 and $r2 were aligned by task number $SLURM_ARRAY_TASK_ID on $(date)
+```
+```
+sbatch run_bwa_haplotypecaller.qsh
+```
+
+7. Then, I ran samtools flagstat to check alignment statistics.
+```
+nano run_flagstats.qsh
+```
+```
+#!/bin/bash
+#SBATCH -J CT_denovo_flagstats
+#SBATCH --nodes=1
+#SBATCH --ntasks=20
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --mem-per-cpu=1G
+#SBATCH --time=24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load samtools
+
+for b in *.bam
+do
+        stats_out=$( basename $b | sed 's/.bam/.stats/g')
+
+        samtools flagstat $b > $stats_out
+done
+```
+```
+sbatch run_flagstats.qsh
+```
+
+8. Thereafter, I collated the most useful statistics from the flagstats outputs into a single file.
+```
+nano collate_flagstats.sh
+```
+```
+for file in *stats
+do
+        echo $file >> flagstat_summary.tsv &&\
+        grep '+ 0 in total' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 mapped' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 primary mapped' $file >> flagstat_summary.tsv &&\
+        grep '+ 0 supplementary' $file  >> flagstat_summary.tsv
+done
+```
+```
+bash collate_flagstats.sh
+```
+
+9. Finally, I curated the stats into a tsv file to copy into a spreadsheet in google drive [here](https://docs.google.com/spreadsheets/d/1KL36GsyMEJyrZzoKnBIFlJDbhraCc4ZqQv5sTebNm6w/edit#gid=250450826). 
+```
+nano curate_flagstats.sh
+```
+```
+awk 'NR % 5 == 1' flagstat_summary.tsv > column1.tsv
+awk 'NR % 5 == 2' flagstat_summary.tsv > column2.tsv
+awk 'NR % 5 == 3' flagstat_summary.tsv > column3.tsv
+awk 'NR % 5 == 4' flagstat_summary.tsv > column4.tsv
+awk 'NR % 5 == 0' flagstat_summary.tsv > column5.tsv
+
+paste column1.tsv column2.tsv column3.tsv column4.tsv column5.tsv > final_flagstat_summary.tsv
+
+rm column*.tsv
+```
+```
+bash curate_flagstats.sh
+```
+
+</details>
+</p>
+
+***
+
+<details><summary> 7. GATK: HaplotypeCaller </summary>
+<p>
+
+1. I linked the sorted BAM files into a new analysis directory.
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/02_Ct_denovo_dDocent2GATK/02_analysis_C0.96_k3_k8_current
+mkdir 07_gatk_haplotypecaller
+cd 07_gatk_haplotypecaller
+ln -s ../06_bwa/*bam .
+```
+
+2. Next, I added read groups to all of the sorted bam files. 
+```
+nano run_picard_array.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=denovo_picard
+#SBATCH --nodes=1
+#SBATCH --ntasks=5
+#SBATCH --mem=10G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=263-267
+#SBATCH -o picard_array_outs/%x_%A_%a.out
+#SBATCH -e picard_array_err/%x_%A_%a.err
+#SBATCH --time=4:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *_sorted.bam))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# create an output file name
+OUT=`sed 's/_sorted.bam//' <(echo ${ARRAY_FILE})`
+
+# define the bam file from the array
+BAM=${ARRAY_FILE}
+
+echo "BAM $BAM"
+echo "OUT $OUT"
+
+module load gatk
+
+picard \
+        AddOrReplaceReadGroups \
+        I=${BAM} \
+        O=${OUT}_sorted.RG.bam \
+        RGSM=$OUT \
+        RGLB=$OUT \
+        RGPL=illumina \
+        RGPU=$OUT
+
+echo BAM file $BAM had reads groups added/replaced by picard-2.27.3 in Slurm Task ID $SLURM_ARRAY_TASK_ID on $(date).
+```
+```
+sbatch run_picard_array.qsh
+```
+
+3. Then, I indexed the read files with samtools.
+```
+nano run_samtools_index.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=samtools_index
+#SBATCH --nodes=1
+#SBATCH --ntasks=10
+#SBATCH --mem=20G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --time=6:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+module load samtools
+
+for file in *_sorted.RG.bam; do samtools index $file; done
+```
+```
+sbatch run_samtools_index.qsh
+```
+
+3. Next, I ran GATK HaplotypeCaller to produce GVCFs.
+```
+nano run_haplotypecaller.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=denovo_HaplotypeCaller
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --mem=25G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=campus
+#SBATCH --qos=campus
+#SBATCH --array=181-266
+#SBATCH -o haplotypecaller_array_outs/%x_%A_%a.out
+#SBATCH -e haplotypecaller_array_err/%x_%A_%a.err
+#SBATCH --time=6:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+echo "host name : " `hostname`
+echo This is array task number $SLURM_ARRAY_TASK_ID
+
+# create an array variable containing the file names
+FILES=($(ls -1 *.RG.bam))
+
+# get specific file name, assign it to the array function
+        # note that FILE variable is 0-indexed so
+        # for convenience we also began the task IDs with 0
+ARRAY_FILE=${FILES[$SLURM_ARRAY_TASK_ID]}
+
+# define the BAM file from the array file
+BAM=${ARRAY_FILE}
+
+# create an output file name
+OUT=$( basename $BAM | sed 's/_sorted.RG.bam//g' )
+
+echo "BAM: $BAM"
+echo "OUT: $OUT"
+
+# Allows conda environments to be loaded within slurm shell scripts
+eval "$(conda shell.bash hook)"
+
+# Activate environments and load modules
+conda activate gatk
+module load gatk
+
+gatk --java-options "-Xms20G -Xmx20G -XX:+UseParallelGC -XX:ParallelGCThreads=2" \
+    HaplotypeCaller \
+    -R ../reference_C0.96_k3_k8/reference.fasta \
+    -I $BAM \
+    -O ${OUT}.g.vcf \
+    --native-pair-hmm-threads 2 \
+    --smith-waterman FASTEST_AVAILABLE \
+    -ERC GVCF \
+
+echo BAM file $BAM was processed by the GATK Haplotype Caller by Slurm Task ID $SLURM_ARRAY_TASK_ID on $(date)
+```
+```
+sbatch run_haplotypecaller.qsh
+```
+
+</details>
+</p>
+
+***
+
+<details><summary> 8. GATK: GenotypeGVCFs </summary>
+<p>
+
+1. First, I linked the GVCF files and their indexes to a new analysis folder.
+```
+cd /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/02_Ct_denovo_dDocent2GATK/02_analysis_C0.96_k3_k8_current
+mkdir 08_gatk_genotypegvcfs
+cd 08_gatk_genotypegvcfs
+ln -s ../07_gatk_haplotypecaller/*g.vcf* .
+```
+
+2. Next, I created a contig intervals list for the genome for GenomicsDBImport.
+```
+nano create_intervals_file.qsh
+```
+```
+# Create the intervals.list file.
+grep '>' denovo_reference/reference_k4_k7_0.94.fasta | sed 's/>//' >> intervals.list
+
+# Replace 'input.txt' with the path to your input text file.
+input_file="intervals.list"
+
+while IFS= read -r line; do
+  # Surround each line with backticks and print the result
+  echo "$line" | cut -d' ' -f1 >> trimmed_intervals.list
+done < "$input_file"
+
+rm intervals.list
+```
+```
+bash create_intervals_file.qsh
+```
+
+3. GenomicsDBImport also requires a list of GVCFs in `.list` format, which I created like so. Then, I checked to make sure the correct number of individuals were in the `gvcfs.list` file.
+```
+nano create_gvcfs_list.qsh
+```
+```
+ls -1 *g.vcf > gvcfs.list
+```
+```
+bash create_gvcfs_list.qsh
+```
+```
+cat gvcfs.list | wc -l
+```
+
+4. Then, I ran GenomicsDBImport to combine GVCFs.
+```
+nano run_genomicsdb_import.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=GenomicsDBImport
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --mem=300G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=condo-ut-genomics
+#SBATCH --qos=genomics
+#SBATCH --time=144:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+eval "$(conda shell.bash hook)"
+conda activate gatk
+module load gatk
+
+gatk \
+        --java-options "-Xms280G -Xmx280G -XX:ParallelGCThreads=2" \
+        GenomicsDBImport \
+        --genomicsdb-shared-posixfs-optimizations \
+        --reference /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/02_Ct_denovo_dDocent2GATK/02_analysis_C0.96_k3_k8_current/reference_C0.96_k3_k8/reference.fasta \
+        --variant gvcfs.list \
+        --genomicsdb-workspace-path Cthyoides_denovo-ref_database \
+        --intervals trimmed_intervals.list \
+        --batch-size 50 \
+        --merge-contigs-into-num-partitions 25 \
+        --reader-threads 2
+```
+```
+sbatch run_genomicsdb_import.qsh
+```
+
+5. Finally, I performed joint genotype calling using GenotypeGVCFs.
+```
+nano run_gatk_genotypegvcfs.qsh
+```
+```
+#!/bin/bash
+#SBATCH --job-name=GenotypeGVCFs_trimmed_intervals
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --mem=30G
+#SBATCH -A ACF-UTK0032
+#SBATCH --partition=condo-ut-genomics
+#SBATCH --qos=genomics
+#SBATCH -o %x_%A_%a.out
+#SBATCH -e %x_%A_%a.err
+#SBATCH --time=144:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=zsmith10@vols.utk.edu
+
+eval "$(conda shell.bash hook)"
+conda activate gatk
+module load gatk
+
+gatk \
+   --java-options "-Xms20G -Xmx20G -XX:ParallelGCThreads=2" \
+    GenotypeGVCFs \
+   -R /lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/02_Ct_denovo_dDocent2GATK/02_analysis_C0.96_k3_k8_current/reference_C0.96_k3_k8/reference.fasta \
+   -V gendb://Cthyoides_denovo-ref_database \
+   --intervals trimmed_intervals.list \
+   -O Cthyoides_denovo-refaligned.vcf.gz
+```
+```
+sbatch run_gatk_genotypegvcfs.qsh
+```
+
+</details>
+</p>
+
+***
 
 
 </details>
