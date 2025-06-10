@@ -1,9 +1,21 @@
 ## Atlantic White‐cedar: Population Genetics Analysis Comparisons
 ### Prior to these analyses, SNPs were called by aligning reads to 3 separate references:
 * Chamaecyparis obtusa - The closest reference available (HiFi-based).
+<details><summary> </summary>
+
+
+</details>
 * Thuja plicata - The second closest reference (here, our "phylogenetically distant reference"; Illumina-based from a multigeneration-selfed individual)
+<details><summary> </summary>
+
+
+</details>
+
 * De novo - Assembled from GBS reads using the dDocent pipeline (rainbow + CD hit).
-### Analysis directory: `/lustre/isaac/proj/UTK0032/zsmith10/chamaecyparis_thyoides/04_popgen_analysis`
+<details><summary> </summary>
+
+
+</details>
 
 ***
 
